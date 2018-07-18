@@ -4,28 +4,17 @@ var mongoose = require('mongoose');
 var mongoDB = 'mongodb://127.0.0.1:27017/test';
 mongoose.connect(mongoDB);
 var db = mongoose.connection;
-var User = require('./Models/models');
-var Image = require('./Models/imagemod');
 var bodyParser = require('body-parser');
 var data=require('./Models/file');
-/*var image=
-{
-  place:'',
-  id:'',
-}
-for(var i=0;i<data.length;i++)
-{
-  image.place=data[i][0];
-  image.id=data[i][1];
-  var imagedata=new Image(image);
-  imagedata.save(function(err) {
-  if (err) throw err;
-   console.log("User saved!!");
- });
-}*/
 
-app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({extended: true}))
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended: true}));
+var User = require('./Models/models');
+var Image = require('./Models/imagemod');
+var detail=require('./Models/detailpage');
+
+
+
 app.all('*', function(req, res, next) {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'PUT, GET, POST, DELETE, OPTIONS');
@@ -42,6 +31,12 @@ app.post('/addname', function (req, res) {
 });
 app.get('/find', function (req, res) {
   Image.find({}, function(err, user) {
+    if (err) throw err;
+    res.json(user);
+  });
+});
+app.get('/detail', function (req, res) {
+  detail.find({place:req.query.id}, function(err, user) {
     if (err) throw err;
     res.json(user);
   });
