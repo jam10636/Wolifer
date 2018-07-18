@@ -1,53 +1,84 @@
 import React, { Component } from 'react';
 import ReactDOM, {render} from 'react-dom';
 import axios from 'axios';
-import Child from './locationdiv';
+import Parent from'./imagedetail';
+import Children from './childdiv';
 import { Navbar, NavItem,NavDropdown,MenuItem,Nav,FormGroup,FormControl,Button} from 'react-bootstrap';
+import Map from './map'
 class NameForm extends React.Component {
   constructor(props) {
    super(props);
    this.state = {value: '',
+   clicked:false,
    data:[],
-   originaldata:[]};
+   detail:[],
+   displaydata:[]};
    this.handleChange = this.handleChange.bind(this);
    this.handleSubmit = this.handleSubmit.bind(this);
+   this.handleclicked = this.handleclicked.bind(this);
+   this.conditionalrendering=this.conditionalrendering.bind(this);
  }
  componentDidMount() {
    axios.get(`http://10.0.1.122:8080/find`)
      .then(res => {
        var persons = res.data;
        this.setState({ data:persons,
-       originaldata:persons});
+       displaydata:persons});
      });
  }
    handleChange(event) {
   this.setState({value: event.target.value});
 }
   handleSubmit(event) {
-    /*var user={
-      place:this.state.value,
-      location:'m',
-    }
-  /*  axios.post('http://10.0.1.122:8080/addname', {
-   user
- })
- .then(function (response) {
-   console.log(response);
- })
- .catch(function (error) {
-   console.log(error);
- });*/
- var displaydata=[];
+ var originialdata=[];
+ this.setState({clicked:false});
  this.state.data.map((person,index)=>
    {if(person.place.toLowerCase().includes((this.state.value).toLowerCase()))
      {
-      displaydata[index]=person;
+      originialdata[index]=person;
      }
  }
  );
- console.log(displaydata);
- this.setState({data:displaydata});
+ this.setState({displaydata:originialdata,
+   click:false});
  event.preventDefault();
+ this.updatetotrue;
+}
+handleclicked(e,link)
+{
+  var url=e;
+  axios.get('http://10.0.1.122:8080/detail?id='+'hot spring')
+    .then(res => {
+      var detailpage = res.data;
+      this.setState({ detail:detailpage,clicked:true
+      });
+    });
+}
+
+conditionalrendering()
+{
+
+  if(this.state.clicked==false)
+  {
+  return (
+    <div className="row">
+    {this.state.displaydata.map((person,index)=>(
+       <Children click={()=>this.handleclicked(person.place,person.id)}
+       Name={person.place} Place={''} URL={require('./Images/'+person.id)} />
+    ))}
+    </div>
+  );
+  }
+  else {
+    return (
+    <div className="row">
+    <Parent
+    name={this.state.detail[0].place}
+     description={this.state.detail[0].descrption} location={this.state.detail[0].location}
+     URL={require('./Images/'+'Buffalo.jpg')} />
+    </div>
+  )
+  }
 }
   render(){
     return (
@@ -69,9 +100,8 @@ class NameForm extends React.Component {
    </Navbar.Form>
  </form>
   </Navbar>
-  <Child data={this.state.data}/>
+  {this.conditionalrendering()}
   </div>
-
     )
   }
 }
