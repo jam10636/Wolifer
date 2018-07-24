@@ -3,13 +3,12 @@ import Children from './childdiv'
 import './childdiv.css'
 import axios from 'axios';
 import { connect } from 'react-redux';
-import Parent from './imagedetail';
-import {onclick,offclick} from '../Actions/Clickaction';
-import {bindActionCreators} from 'redux';
+import Parent from './imagedetail'
 class parents extends Component {
   constructor(props) {
    super(props);
   this.state = {
+  clicked:false,
   place:'',
   url:'',
   detail:{
@@ -25,20 +24,20 @@ class parents extends Component {
  }
  handleclicked(e,link)
  {
+   this.props.dispatch()
    var url=e;
    axios.get('http://10.0.1.122:8080/detail?id='+'hot spring')
      .then(res => {
        var detailpage = res.data;
-       this.setState({ detail:detailpage,
+       this.setState({ detail:detailpage,clicked:true
        });
-       this.props.onclick();
      });
-
  }
 
  conditionalrendering()
  {
-   if(this.props.userReducer==false)
+
+   if(this.state.clicked==false)
    {
    return (
      <div className="row">
@@ -69,9 +68,6 @@ class parents extends Component {
   }
 }
 const mapStateToProps=(state)=>({
-userReducer:state.userReducer.clicked,
-});
-const mapDispatchToProps = dispatch =>
-bindActionCreators({ onclick }, dispatch);
 
-export default connect(mapStateToProps,mapDispatchToProps)(parents);
+})
+export default connect()(parents);

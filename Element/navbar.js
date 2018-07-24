@@ -3,25 +3,27 @@ import ReactDOM, {render} from 'react-dom';
 import axios from 'axios';
 import Parent from'./imagedetail';
 import Children from './childdiv';
+import Locdisplay from './locationdiv';
+import {onclick,offclick} from '../Actions/Clickaction';
+import {bindActionCreators} from 'redux';
+import { connect } from 'react-redux';
 import { Navbar, NavItem,NavDropdown,MenuItem,Nav,FormGroup,FormControl,Button} from 'react-bootstrap';
 import Map from './map'
 class NameForm extends React.Component {
   constructor(props) {
    super(props);
    this.state = {value: '',
-   clicked:false,
    data:[],
    detail:[],
    displaydata:[]};
    this.handleChange = this.handleChange.bind(this);
    this.handleSubmit = this.handleSubmit.bind(this);
-   this.handleclicked = this.handleclicked.bind(this);
-   this.conditionalrendering=this.conditionalrendering.bind(this);
  }
  componentDidMount() {
    axios.get(`http://10.0.1.122:8080/find`)
      .then(res => {
        var persons = res.data;
+       console.log(persons);
        this.setState({ data:persons,
        displaydata:persons});
      });
@@ -31,7 +33,6 @@ class NameForm extends React.Component {
 }
   handleSubmit(event) {
  var originialdata=[];
- this.setState({clicked:false});
  this.state.data.map((person,index)=>
    {if(person.place.toLowerCase().includes((this.state.value).toLowerCase()))
      {
@@ -40,45 +41,9 @@ class NameForm extends React.Component {
  }
  );
  this.setState({displaydata:originialdata,
-   click:false});
+  });
+  this.props.offclick();
  event.preventDefault();
- this.updatetotrue;
-}
-handleclicked(e,link)
-{
-  var url=e;
-  axios.get('http://10.0.1.122:8080/detail?id='+'hot spring')
-    .then(res => {
-      var detailpage = res.data;
-      this.setState({ detail:detailpage,clicked:true
-      });
-    });
-}
-
-conditionalrendering()
-{
-
-  if(this.state.clicked==false)
-  {
-  return (
-    <div className="row">
-    {this.state.displaydata.map((person,index)=>(
-       <Children click={()=>this.handleclicked(person.place,person.id)}
-       Name={person.place} Place={''} URL={require('./Images/'+person.id)} />
-    ))}
-    </div>
-  );
-  }
-  else {
-    return (
-    <div className="row">
-    <Parent
-    name={this.state.detail[0].place}
-     description={this.state.detail[0].descrption} location={this.state.detail[0].location}
-     URL={require('./Images/'+'Buffalo.jpg')} />
-    </div>
-  )
-  }
 }
   render(){
     return (
@@ -100,9 +65,14 @@ conditionalrendering()
    </Navbar.Form>
  </form>
   </Navbar>
-  {this.conditionalrendering()}
+  <Locdisplay data={this.state.displaydata}/>
   </div>
     )
   }
 }
-export default NameForm
+const mapStateToProps=(state)=>({
+userReducer:state.userReducer.clicked,
+});
+const mapDispatchToProps = dispatch =>
+bindActionCreators({ offclick }, dispatch);
+export default connect(mapStateToProps,mapDispatchToProps)(NameForm);

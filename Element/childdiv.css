@@ -19,6 +19,8 @@ img {
 
 .container {
     padding: 5px 16px;
+    width: 600px;
+
 }
 .column {
     float: center;
